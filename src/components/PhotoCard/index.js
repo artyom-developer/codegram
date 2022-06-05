@@ -1,38 +1,38 @@
 import React, { Fragment, useEffect, useRef, useState } from 'react'
 import { ImgWrapper, Img, Button, Article } from './styles'
-import { MdFavoriteBorder } from 'react-icons/md'
+import { useMutationToogleLike } from '../../hooks/useMutationToogleLike'
+import { useLocalStorage } from '../../hooks/useLocalStorage'
+import { useNearScreen } from '../../hooks/useNearScreen' 
+import { FavButton } from '../FavButton' 
 
 const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1518791841217-8f162f1e1131?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=60'
 
 export const PhotoCard = ({ id, likes = 0, src = DEFAULT_IMAGE }) => {
-  const element = useRef(null)
-  const [show, setShow] = useState(false)
+  const [show, element] = useNearScreen()
+  const key = `like-${id}`
+  const [liked, setLiked] = useLocalStorage(key, false) 
 
-  useEffect(function () {
-    const observer = new window.IntersectionObserver(function (entries) {
-      const { isIntersecting } = entries[0]
-      console.log(isIntersecting)
-      if (isIntersecting) {
-        setShow(true)
-        observer.disconnect()
+  const { mutation, mutationLoading, mutationError } = useMutationToogleLike()
+ 
+  const handleFavClick = () => {
+    !liked && mutation({
+      variables: {
+        input: { id }
       }
     })
-    observer.observe(element.current)
-  }, [element])
-
+    setLiked(!liked)
+  }
+  
   return (
     <Article ref={element}>
       {
         show && <Fragment>
-          <a href={`/detail/${id}`}>
+          <a href={`/?detail=${id}`}>
             <ImgWrapper>
               <Img src={src} />
             </ImgWrapper>
-          </a>
-
-          <Button>
-            <MdFavoriteBorder size='32px' /> {likes} likes!
-          </Button>
+          </a> 
+          <FavButton liked={liked} likes={likes} onClick={handleFavClick} />
         </Fragment>
       }
     </Article>

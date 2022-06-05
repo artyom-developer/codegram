@@ -3,7 +3,7 @@
 	"name": "codegram",
 	"builds": [
 		{
-			"use": "@now/static-build",
+			"use": "@vercel/static-build",
 			"src": "package.json"
 		}
 	],
